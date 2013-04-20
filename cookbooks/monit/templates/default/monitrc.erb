@@ -1,0 +1,26 @@
+set daemon 30
+
+set logfile /var/log/monit.log
+#set mailserver localhost
+
+set eventqueue
+    basedir /var/monit  # set the base directory where events will be stored
+#    slots 1000          # optionaly limit the queue size
+
+
+set pidfile /var/run/monit.pid
+set statefile /usr/local/monit/monit.state
+
+set alert ouadie@adelphic.com NOT ON { action, instance, pid, ppid }
+
+set httpd port 3737 and
+    use address localhost
+    allow localhost
+
+
+check process chef-client with pidfile /var/run/chef/client.pid
+  start program = "/bin/bash -c '/usr/bin/chef-client -d -i 900 -s 20 --pid /var/run/chef/client.pid'" 
+  stop program  = "/bin/bash -c '/bin/kill `cat /var/run/chef/client.pid`'"
+#  if 5 restarts within 5 cycles then alert
+
+include /etc/monit/conf.d/*.conf
